@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<script type='text/javascript' src='../src/_loader.js?debug'></script>
+<a href="?slotMinutes=22">with slotMinutes = 22</a>
+<a href="?slotMinutes=15">with slotMinutes = 15</a>
+<script type='text/javascript'>
+  $(document).ready(function() {
+
+    // decode query string
+    var urlParams = {};
+    (function () {
+        var e,
+            a = /\+/g,  // Regex for replacing addition symbol with a space
+            r = /([^&=]+)=?([^&]*)/g,
+            d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+            q = window.location.search.substring(1);
+
+        while (e = r.exec(q))
+           urlParams[d(e[1])] = d(e[2]);
+    })();
+
+		var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+
+		$('#calendar').fullCalendar({
+			defaultView: 'agendaWeek',
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,basicWeek,agendaDay,basicDay'
+			},
+			editable: false,
+      weekends : false,
+      allDaySlot: false,
+      allDayDefault: false,
+      slotMinutes: urlParams['slotMinutes'] || 22,
+      periods: ['08:00', '08:50', '09:50', '10:40', '11:30', '13:30', '14:20', '15:20', '16:10'],
+      periodDuration: 45,
+      firstHour : 8,
+      minTime : '08:00',
+      maxTime : '17:00',
+      
+			events: [
+				{
+					title: 'Math',
+					start: new Date(y, m, d, 8, 0),
+					end: new Date(y, m, d, 9, 35)
+				},
+				{
+					title: 'English',
+					start: new Date(y, m, d, 9, 50),
+					end: new Date(y, m, d, 10, 35)
+				},
+				{
+					title: 'Physics',
+					start: new Date(y, m, d, 13, 30),
+					end: new Date(y, m, d, 15, 05)
+				},
+				{
+					title: 'English',
+					start: new Date(y, m, d+1, 8, 50),
+					end: new Date(y, m, d+1, 9, 35)
+				},
+				{
+					title: 'Presentation',
+					start: new Date(y, m, d+1, 10, 0),
+					end: new Date(y, m, d+1, 11, 0),
+					color: '#f22'
+				},
+			]
+		});
+
+  });
+</script>
+<style type='text/css'>
+
+	body {
+		margin-top: 40px;
+		text-align: center;
+		font-size: 13px;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		}
+
+	#calendar {
+		width: 900px;
+		margin: 0 auto;
+		}
+
+
+    .fc-agenda .fc-period-head {
+      vertical-align: top;
+    }
+
+    .fc-agenda .fc-period-tail {
+      vertical-align: bottom;
+    }
+
+    .fc-agenda .fc-pause {
+    	background-color: #eee;
+    }
+
+</style>
+</head>
+<body>
+<div id='calendar'></div>
+</body>
+</html>

@@ -62,6 +62,8 @@ function AgendaView(element, calendar, viewName) {
 	
 	// imports
 	View.call(t, element, calendar, viewName);
+	// Moved this export here because we need access to the calendar.option which isn't defined before the call in the line just above
+	t.timePosition = calendar.option('periods') ? periodsTimePosition : timePosition;
 	OverlayManager.call(t);
 	SelectionManager.call(t);
 	AgendaEventRenderer.call(t);
@@ -122,7 +124,7 @@ function AgendaView(element, calendar, viewName) {
 	var minMinute, maxMinute;
 	var colFormat;
 	
-
+	var periodSlots = {};
 	
 	/* Rendering
 	-----------------------------------------------------------------------------*/
@@ -161,8 +163,58 @@ function AgendaView(element, calendar, viewName) {
 	}
 	
 	
+	function buildPeriodsTimeSlots() {
+		var headerClass = tm + "-widget-header";
+		var contentClass = tm + "-widget-content";
+		var slotMinutes = opt('slotMinutes'),
+			s, i, j,
+			periods = calendar.option('periods'),
+			periodDuration = opt('periodDuration'),
+			d = zeroDate(),
+			periodSlotCount, periodLapse;
+			
+		slotCnt = 0;
+		s =
+			"<table class='fc-agenda-slots' style='width:100%' cellspacing='0'>" +
+			"<tbody>";
+		for (i=0; i < periods.length; i++) {
+			periodLapse = periods.length-1 == i ? periodDuration : parseTime(periods[i+1]) - parseTime(periods[i])
+			periodSlotCount = Math.floor(Math.min(periodDuration, periodLapse) / slotMinutes);
+			pauseSlotCount = Math.floor((periodLapse - periodDuration) / slotMinutes);
+			
+			periodSlots[i] = slotCnt;
+			
+			s += "<tr class='fc-slot" + i + "'><th class='fc-agenda-axis fc-period-head " + headerClass + "'>" +
+				formatDate(addMinutes(cloneDate(d), parseTime(periods[i])), opt('axisFormat')) + 
+				"</th><td class='" + contentClass + "'><div style='position:relative'>&nbsp;</div></td></tr>";
+			slotCnt++;
+			periodSlotCount--;
+
+			for (j=0; j < periodSlotCount-1; j++) {
+				s += "<tr class='fc-slot" + i + " fc-minor'><th class='fc-agenda-axis " + headerClass + "'>" +
+					"</th><td class='" + contentClass + "'><div style='position:relative'>&nbsp;</div></td></tr>";
+				slotCnt++;
+			}
+
+			s += "<tr class='fc-slot" + i + " fc-minor'><th class='fc-agenda-axis fc-period-tail " + headerClass + "'>" +
+				formatDate(addMinutes(cloneDate(d), parseTime(periods[i]) + periodDuration), opt('axisFormat')) + 
+				"</th><td class='" + contentClass + "'><div style='position:relative'>&nbsp;</div></td></tr>";
+			slotCnt++;
+			
+			for (j=0; j < pauseSlotCount; j++) {
+				s += "<tr class='fc-slot" + i + ' ' + (!j ? 'fc-pause' : 'fc-minor fc-pause') + "'><th class='fc-agenda-axis " + headerClass + "'>" +
+					"</th><td class='" + contentClass + "'><div style='position:relative'>&nbsp;</div></td></tr>";
+				slotCnt++;
+			}
+		}
+		s +=
+			"</tbody>" +
+			"</table>";
+			
+		return s;
+	}
 	
-	function buildSkeleton() {
+	function buildTimeSlots() {
 		var headerClass = tm + "-widget-header";
 		var contentClass = tm + "-widget-content";
 		var s;
@@ -171,6 +223,40 @@ function AgendaView(element, calendar, viewName) {
 		var maxd;
 		var minutes;
 		var slotNormal = opt('slotMinutes') % 15 == 0;
+		
+		s =
+			"<table class='fc-agenda-slots' style='width:100%' cellspacing='0'>" +
+			"<tbody>";
+		d = zeroDate();
+		maxd = addMinutes(cloneDate(d), maxMinute);
+		addMinutes(d, minMinute);
+		slotCnt = 0;
+		for (i=0; d < maxd; i++) {
+			minutes = d.getMinutes();
+			s +=
+				"<tr class='fc-slot" + i + ' ' + (!minutes ? '' : 'fc-minor') + "'>" +
+				"<th class='fc-agenda-axis " + headerClass + "'>" +
+				((!slotNormal || !minutes) ? formatDate(d, opt('axisFormat')) : '&nbsp;') +	//PHI: Maybe for us: ((!minutes) ? formatDate(d, opt('axisFormat')) : '&nbsp;') + 
+				"</th>" +
+				"<td class='" + contentClass + "'>" +
+				"<div style='position:relative'>&nbsp;</div>" +
+				"</td>" +
+				"</tr>";
+			addMinutes(d, opt('slotMinutes'));
+			slotCnt++;
+		}
+		s +=
+			"</tbody>" +
+			"</table>";
+			
+		return s;
+	}
+	
+	function buildSkeleton() {
+		var headerClass = tm + "-widget-header";
+		var contentClass = tm + "-widget-content";
+		var s;
+		var i;
 		
 		s =
 			"<table style='width:100%' class='fc-agenda-days fc-border-separate' cellspacing='0'>" +
@@ -270,30 +356,7 @@ function AgendaView(element, calendar, viewName) {
 			$("<div style='position:absolute;z-index:8;top:0;left:0'/>")
 				.appendTo(slotContent);
 		
-		s =
-			"<table class='fc-agenda-slots' style='width:100%' cellspacing='0'>" +
-			"<tbody>";
-		d = zeroDate();
-		maxd = addMinutes(cloneDate(d), maxMinute);
-		addMinutes(d, minMinute);
-		slotCnt = 0;
-		for (i=0; d < maxd; i++) {
-			minutes = d.getMinutes();
-			s +=
-				"<tr class='fc-slot" + i + ' ' + (!minutes ? '' : 'fc-minor') + "'>" +
-				"<th class='fc-agenda-axis " + headerClass + "'>" +
-				((!slotNormal || !minutes) ? formatDate(d, opt('axisFormat')) : '&nbsp;') +
-				"</th>" +
-				"<td class='" + contentClass + "'>" +
-				"<div style='position:relative'>&nbsp;</div>" +
-				"</td>" +
-				"</tr>";
-			addMinutes(d, opt('slotMinutes'));
-			slotCnt++;
-		}
-		s +=
-			"</tbody>" +
-			"</table>";
+		s = calendar.option('periods') ? buildPeriodsTimeSlots(tm) : buildTimeSlots(tm);
 		slotTable = $(s).appendTo(slotContent);
 		slotTableFirstInner = slotTable.find('div:first');
 		
@@ -624,6 +687,35 @@ function AgendaView(element, calendar, viewName) {
 		));
 	}
 	
+	function periodsTimePosition(day, time) { // both date objects. day holds 00:00 of current day
+		day = cloneDate(day, true);
+		if (time < addMinutes(cloneDate(day), minMinute)) {
+			return 0;
+		}
+		if (time >= addMinutes(cloneDate(day), maxMinute)) {
+			return slotTable.height();
+		}
+		
+		var slotMinutes = opt('slotMinutes'),
+			periods = calendar.option('periods'),
+			periodDuration = opt('periodDuration'),
+			minutes = time.getHours()*60 + time.getMinutes(),
+			i, slotI;
+		for (i=0; i<periods.length; i++) {
+			if (parseTime(periods[i]) > minutes) {
+				break;
+			}
+		}
+		slotI = periodSlots[i-1];
+		slotTop = slotTopCache[slotI];
+		if (slotTop === undefined) {
+			slotTop = slotTopCache[slotI] = slotTable.find('tr:eq(' + slotI + ') td div')[0].offsetTop;
+		}
+		return Math.max(0, Math.round(
+			slotTop - 1 + slotHeight * ((minutes-parseTime(periods[i-1])) / slotMinutes)
+		));
+	}
+
 	
 	function allDayBounds() {
 		return {
