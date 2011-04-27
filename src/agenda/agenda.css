@@ -75,6 +75,11 @@
 	border-top-width: 0;
 	}
 
+.fc-agenda-slots tr.fc-slot0.fc-minor th,
+.fc-agenda-slots tr.fc-slot0.fc-minor td {
+	border-top-width: 1px;
+	}
+
 .fc-agenda-slots tr.fc-minor th,
 .fc-agenda-slots tr.fc-minor td {
 	border-top-style: dotted;
