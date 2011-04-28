@@ -171,7 +171,7 @@ function AgendaView(element, calendar, viewName) {
 			periods = calendar.option('periods'),
 			periodDuration = opt('periodDuration'),
 			d = zeroDate(),
-			periodSlotCount, periodLapse;
+			periodSlotCount, periodLapse, pauseSlotCount;
 			
 		slotCnt = 0;
 		s =
@@ -700,7 +700,7 @@ function AgendaView(element, calendar, viewName) {
 			periods = calendar.option('periods'),
 			periodDuration = opt('periodDuration'),
 			minutes = time.getHours()*60 + time.getMinutes(),
-			i, slotI;
+			i, slotI, slotTop;
 		for (i=0; i<periods.length; i++) {
 			if (parseTime(periods[i]) > minutes) {
 				break;
