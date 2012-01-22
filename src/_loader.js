@@ -51,6 +51,9 @@ js('basic/BasicDayView.js');
 js('basic/BasicView.js');
 js('basic/BasicEventRenderer.js');
 
+js('agenda/AgendaPeriodWeekView.js');
+js('agenda/AgendaPeriodDayView.js');
+js('agenda/AgendaPeriodView.js');
 js('agenda/AgendaWeekView.js');
 js('agenda/AgendaDayView.js');
 js('agenda/AgendaView.js');
