@@ -1,4 +1,10 @@
 
+setDefaults({
+	periodSlotMinutes: 22,
+	periodMinTime: 0,
+	periodMaxTime: 24
+});
+
 function AgendaPeriodView(element, calendar, viewName) {
 	var t = this;
 	
@@ -134,8 +140,8 @@ function AgendaPeriodView(element, calendar, viewName) {
 			dis = 1;
 			dit = 0;
 		}
-		minMinute = parseTime(opt('minTime'));
-		maxMinute = parseTime(opt('maxTime'));
+		minMinute = parseTime(opt('periodMinTime'));
+		maxMinute = parseTime(opt('periodMaxTime'));
 		colFormat = opt('columnFormat');
 	}
 	
@@ -144,7 +150,7 @@ function AgendaPeriodView(element, calendar, viewName) {
 	function buildPeriodsTimeSlots() {
 		var headerClass = tm + "-widget-header";
 		var contentClass = tm + "-widget-content";
-		var slotMinutes = opt('slotMinutes'),
+		var slotMinutes = opt('periodSlotMinutes'),
 			s, i, j,
 			periods = calendar.option('periods'),
 			periodDuration = opt('periodDuration'),
@@ -445,7 +451,7 @@ function AgendaPeriodView(element, calendar, viewName) {
 			var date = colDate(col);
 			var rowMatch = this.parentNode.className.match(/fc-slot(\d+)/); // TODO: maybe use data
 			if (rowMatch) {
-				var mins = parseInt(rowMatch[1]) * opt('slotMinutes');
+				var mins = parseInt(rowMatch[1]) * opt('periodSlotMinutes');
 				var hours = Math.floor(mins/60);
 				date.setHours(hours);
 				date.setMinutes(mins%60 + minMinute);
@@ -586,7 +592,7 @@ function AgendaPeriodView(element, calendar, viewName) {
 			slotIndex--;
 		}
 		if (slotIndex >= 0) {
-			addMinutes(d, minMinute + slotIndex * opt('slotMinutes'));
+			addMinutes(d, minMinute + slotIndex * opt('periodSlotMinutes'));
 		}
 		return d;
 	}
@@ -619,7 +625,7 @@ function AgendaPeriodView(element, calendar, viewName) {
 			return slotTable.height();
 		}
 		
-		var slotMinutes = opt('slotMinutes'),
+		var slotMinutes = opt('periodSlotMinutes'),
 			periods = calendar.option('periods'),
 			periodDuration = opt('periodDuration'),
 			minutes = time.getHours()*60 + time.getMinutes(),
@@ -671,7 +677,7 @@ function AgendaPeriodView(element, calendar, viewName) {
 		if (allDay) {
 			return cloneDate(startDate);
 		}
-		return addMinutes(cloneDate(startDate), opt('slotMinutes'));
+		return addMinutes(cloneDate(startDate), opt('periodSlotMinutes'));
 	}
 	
 	
@@ -758,9 +764,9 @@ function AgendaPeriodView(element, calendar, viewName) {
 					var d2 = cellDate(cell);
 					dates = [
 						d1,
-						addMinutes(cloneDate(d1), opt('slotMinutes')),
+						addMinutes(cloneDate(d1), opt('periodSlotMinutes')),
 						d2,
-						addMinutes(cloneDate(d2), opt('slotMinutes'))
+						addMinutes(cloneDate(d2), opt('periodSlotMinutes'))
 					].sort(cmp);
 					renderSlotSelection(dates[0], dates[3]);
 				}else{
